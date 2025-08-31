@@ -8,12 +8,21 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Log;
 
 class CartController extends Controller
 {
     public function show()
     {
-        $user = Auth::user();
+        $user = Auth::guard('api')->user();
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Yetkisiz erişim. Lütfen giriş yapın.'
+            ], 401);
+        }
+
         $cart = Cart::with('cartItems.product')->where('user_id', $user->id)->firstOrCreate(['user_id' => $user->id]);
 
         return response()->json([
@@ -38,7 +47,15 @@ class CartController extends Controller
             ], 422);
         }
 
-        $user = Auth::user();
+        $user = Auth::guard('api')->user();
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Yetkisiz erişim. Lütfen giriş yapın.'
+            ], 401);
+        }
+
         $cart = Cart::firstOrCreate(['user_id' => $user->id]);
         $product = Product::find($request->product_id);
 
@@ -62,6 +79,16 @@ class CartController extends Controller
             ]);
         }
 
+        Log::channel('cart_activity')->info('Sepet etkinliği: Ürün sepete eklendi.', [
+            'user_id' => $user->id,
+            'email' => $user->email,
+            'product_id' => $product->id,
+            'product_name' => $product->name,
+            'quantity_added' => $request->quantity,
+            'current_quantity_in_cart' => $cartItem ? $cartItem->quantity : $request->quantity,
+            'timestamp' => now()->toDateTimeString(),
+        ]);
+
         return response()->json([
             'success' => true,
             'message' => 'Ürün sepete başarıyla eklendi.',
@@ -84,7 +111,15 @@ class CartController extends Controller
             ], 422);
         }
 
-        $user = Auth::user();
+        $user = Auth::guard('api')->user();
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Yetkisiz erişim. Lütfen giriş yapın.'
+            ], 401);
+        }
+        
         $cart = $user->cart;
 
         if (!$cart) {

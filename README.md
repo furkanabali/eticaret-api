@@ -593,3 +593,13 @@ Email: user@test.com
 --> Ek olarak postman API isteklerini kontrol etmek için oluşturmuş olduğum kullanıcı:
 Email: furkan@test.com
 Şifre: furkan123
+
+
+
+NOT: Projeye logging sistemi ekledim ve kullanıcıların girişini takip edip ve bir yandan da sepet etkinliğini görebiliyoruz.
+
+Örnek çıktılar:
+
+[2025-09-01 01:35:29] local.INFO: Kullanıcı başarıyla giriş yaptı. {"user_id":1,"username":"Admin User","email":"admin@test.com","login_time":"22025-09-01 01:35:29"} 
+
+[2025-09-01 02:17:11] local.INFO: Sepet etkinliği: Ürün sepete eklendi. {"user_id":1,"email":"admin@test.com","product_id":1,"product_name":"İphone 12 Pro","quantity_added":2,"current_quantity_in_cart":4,"timestamp":"2025-09-01 02:17:11"} 

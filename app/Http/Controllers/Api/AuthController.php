@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
@@ -68,6 +69,15 @@ class AuthController extends Controller
             ], 401);
         }
 
+        $user = Auth::guard('api')->user();
+
+        Log::channel('user_logins')->info('Kullanıcı başarıyla giriş yaptı.', [
+            'user_id' => $user->id,
+            'username' => $user->name,
+            'email' => $user->email,
+            'login_time' => now()->toDateTimeString(),
+        ]);
+
         return response()->json([
             'success' => true,
             'message' => 'Giriş başarılı.',
@@ -81,6 +91,11 @@ class AuthController extends Controller
 
     public function profile()
     {
+        $user = Auth::guard('api')->user();
+        if (!$user) {
+             return response()->json(['success' => false, 'message' => 'Yetkisiz erişim.'], 401);
+        }
+
         return response()->json([
             'success' => true,
             'message' => 'Profil bilgileri başarıyla getirildi.',
@@ -92,7 +107,10 @@ class AuthController extends Controller
 
     public function updateProfile(Request $request)
     {
-        $user = Auth::user();
+        $user = Auth::guard('api')->user();
+        if (!$user) {
+             return response()->json(['success' => false, 'message' => 'Yetkisiz erişim.'], 401);
+        }
 
         try {
             $request->validate([

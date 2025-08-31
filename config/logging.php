@@ -127,6 +127,20 @@ return [
             'path' => storage_path('logs/laravel.log'),
         ],
 
+        'user_logins' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/user-logins.log'),
+            'level' => 'info',
+            'days' => 7,
+        ],
+
+        'cart_activity' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/cart-activity.log'),
+            'level' => 'info',
+            'days' => 7,
+        ],
+
     ],
 
 ];
